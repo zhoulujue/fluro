@@ -10,6 +10,7 @@ import 'dart:async';
 
 import 'package:fluro/fluro.dart';
 import 'package:fluro/src/common.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 enum TransitionType {
@@ -46,10 +47,12 @@ class Router {
   ///
   Future navigateTo(BuildContext context, String path,
       {bool replace = false,
+      bool forceCupertino = false,
       TransitionType transition = TransitionType.native,
       Duration transitionDuration = const Duration(milliseconds: 250),
       RouteTransitionsBuilder transitionBuilder}) {
     RouteMatch routeMatch = matchRoute(context, path,
+        forceCupertino: forceCupertino,
         transitionType: transition,
         transitionsBuilder: transitionBuilder,
         transitionDuration: transitionDuration);
@@ -93,6 +96,7 @@ class Router {
   ///
   RouteMatch matchRoute(BuildContext buildContext, String path,
       {RouteSettings routeSettings,
+      bool forceCupertino = false,
       TransitionType transitionType,
       Duration transitionDuration = const Duration(milliseconds: 250),
       RouteTransitionsBuilder transitionsBuilder}) {
@@ -133,6 +137,14 @@ class Router {
         } else {
           routeTransitionsBuilder = _standardTransitionsBuilder(transitionType);
         }
+
+        if (forceCupertino) {
+          return new CupertinoPageRoute<dynamic>(
+            builder: (context) => handler.handlerFunc(context, parameters),
+            settings: routeSettings,
+          );
+        }
+
         return new PageRouteBuilder<dynamic>(
           settings: routeSettings,
           pageBuilder: (BuildContext context, Animation<double> animation,
