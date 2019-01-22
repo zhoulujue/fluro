@@ -1,8 +1,9 @@
 /*
  * fluro
- * A Posse Production
- * http://goposse.com
- * Copyright (c) 2018 Posse Productions LLC. All rights reserved.
+ * Created by Yakka
+ * https://theyakka.com
+ * 
+ * Copyright (c) 2018 Yakka, LLC. All rights reserved.
  * See LICENSE for distribution and usage details.
  */
 
@@ -70,5 +71,15 @@ void main() {
           "phrase": ["hello world"],
           "number": ["7", "10", "13"],
         }));
+  });
+  testWidgets("Router correctly matches route and transition type",
+      (WidgetTester tester) async {
+    String path = "/users/1234";
+    String route = "/users/:id";
+    Router router = new Router();
+    router.define(route,
+        handler: null, transitionType: TransitionType.inFromRight);
+    AppRouteMatch match = router.match(path);
+    expect(TransitionType.inFromRight, match.route.transitionType);
   });
 }

@@ -1,8 +1,9 @@
 /*
  * fluro
- * A Posse Production
- * http://goposse.com
- * Copyright (c) 2018 Posse Productions LLC. All rights reserved.
+ * Created by Yakka
+ * https://theyakka.com
+ * 
+ * Copyright (c) 2018 Yakka, LLC. All rights reserved.
  * See LICENSE for distribution and usage details.
  */
 
@@ -13,16 +14,6 @@ import 'package:fluro/src/common.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-enum TransitionType {
-  native,
-  nativeModal,
-  inFromLeft,
-  inFromRight,
-  inFromBottom,
-  fadeIn,
-  custom, // if using custom then you must also provide a transition
-}
-
 class Router {
   static final appRouter = new Router();
 
@@ -32,10 +23,11 @@ class Router {
   /// Generic handler for when a route has not been defined
   Handler notFoundHandler;
 
-  /// Creates a [PageRoute] definition for the passed [RouteHandler]. You can optionally provide a custom
-  /// transition builder for the route.
-  void define(String routePath, {@required Handler handler}) {
-    _routeTree.addRoute(new AppRoute(routePath, handler));
+  /// Creates a [PageRoute] definition for the passed [RouteHandler]. You can optionally provide a default transition type.
+  void define(String routePath,
+      {@required Handler handler, TransitionType transitionType}) {
+    _routeTree.addRoute(
+        new AppRoute(routePath, handler, transitionType: transitionType));
   }
 
   /// Finds a defined [AppRoute] for the path value. If no [AppRoute] definition was found
@@ -44,11 +36,14 @@ class Router {
     return _routeTree.matchRoute(path);
   }
 
+  bool pop(BuildContext context) => Navigator.pop(context);
+
   ///
   Future navigateTo(BuildContext context, String path,
       {bool replace = false,
       bool forceCupertino = false,
-      TransitionType transition = TransitionType.native,
+      bool clearStack = false,
+      TransitionType transition,
       Duration transitionDuration = const Duration(milliseconds: 250),
       RouteTransitionsBuilder transitionBuilder}) {
     RouteMatch routeMatch = matchRoute(context, path,
@@ -66,14 +61,19 @@ class Router {
         route = _notFoundRoute(context, path);
       }
       if (route != null) {
-        future = replace
-            ? Navigator.pushReplacement(context, route)
-            : Navigator.push(context, route);
+        if (clearStack) {
+          future =
+              Navigator.pushAndRemoveUntil(context, route, (check) => false);
+        } else {
+          future = replace
+              ? Navigator.pushReplacement(context, route)
+              : Navigator.push(context, route);
+        }
         completer.complete();
       } else {
         String error = "No registered route was found to handle '$path'.";
         print(error);
-        completer.completeError(error);
+        completer.completeError(RouteNotFoundException(error, path));
       }
     }
 
@@ -107,6 +107,10 @@ class Router {
     AppRouteMatch match = _routeTree.matchRoute(path);
     AppRoute route = match?.route;
     Handler handler = (route != null ? route.handler : notFoundHandler);
+    var transition = transitionType;
+    if (transitionType == null) {
+      transition = route != null ? route.transitionType : TransitionType.native;
+    }
     if (route == null && notFoundHandler == null) {
       return new RouteMatch(
           matchType: RouteMatchType.noMatch,
@@ -121,21 +125,21 @@ class Router {
 
     RouteCreator creator =
         (RouteSettings routeSettings, Map<String, List<String>> parameters) {
-      bool isNativeTransition = (transitionType == TransitionType.native ||
-          transitionType == TransitionType.nativeModal);
+      bool isNativeTransition = (transition == TransitionType.native ||
+          transition == TransitionType.nativeModal);
       if (isNativeTransition) {
         return new MaterialPageRoute<dynamic>(
             settings: routeSettings,
-            fullscreenDialog: transitionType == TransitionType.nativeModal,
+            fullscreenDialog: transition == TransitionType.nativeModal,
             builder: (BuildContext context) {
               return handler.handlerFunc(context, parameters);
             });
       } else {
         var routeTransitionsBuilder;
-        if (transitionType == TransitionType.custom) {
+        if (transition == TransitionType.custom) {
           routeTransitionsBuilder = transitionsBuilder;
         } else {
-          routeTransitionsBuilder = _standardTransitionsBuilder(transitionType);
+          routeTransitionsBuilder = _standardTransitionsBuilder(transition);
         }
 
         if (forceCupertino) {

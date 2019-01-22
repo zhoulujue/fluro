@@ -1,3 +1,16 @@
+# 1.4.0
+- Added the ability to define a transition at the point of route definition. Route transitions are optional and any transition defined a "push" will override the route definition.
+
+# 1.3.7
+- Add `toString` for custom `RouteNotFoundException` type
+
+# 1.3.6
+- Small fix to error return type when no route match was made
+
+# 1.3.5
+- add `pop` convenience
+- add `clearStack` flag so that you can clear the history when pushing a route
+
 # 1.3.4
 - Change lower dart version to cater to older flutter versions
 
