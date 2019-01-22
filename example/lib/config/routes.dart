@@ -1,8 +1,9 @@
 /*
  * fluro
- * A Posse Production
- * http://goposse.com
- * Copyright (c) 2018 Posse Productions LLC. All rights reserved.
+ * Created by Yakka
+ * https://theyakka.com
+ * 
+ * Copyright (c) 2018 Yakka, LLC. All rights reserved.
  * See LICENSE for distribution and usage details.
  */
 import 'package:fluro/fluro.dart';
@@ -12,6 +13,7 @@ import './route_handlers.dart';
 class Routes {
   static String root = "/";
   static String demoSimple = "/demo";
+  static String demoSimpleFixedTrans = "/demo/fixedtrans";
   static String demoFunc = "/demo/func";
   static String deepLink = "/message";
 
@@ -22,6 +24,8 @@ class Routes {
     });
     router.define(root, handler: rootHandler);
     router.define(demoSimple, handler: demoRouteHandler);
+    router.define(demoSimpleFixedTrans,
+        handler: demoRouteHandler, transitionType: TransitionType.inFromLeft);
     router.define(demoFunc, handler: demoFunctionHandler);
     router.define(deepLink, handler: deepLinkHandler);
   }

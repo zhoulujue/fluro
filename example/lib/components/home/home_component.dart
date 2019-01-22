@@ -1,8 +1,9 @@
 /*
  * fluro
- * A Posse Production
- * http://goposse.com
- * Copyright (c) 2018 Posse Productions LLC. All rights reserved.
+ * Created by Yakka
+ * https://theyakka.com
+ * 
+ * Copyright (c) 2018 Yakka, LLC. All rights reserved.
  * See LICENSE for distribution and usage details.
  */
 import 'dart:async';
@@ -99,8 +100,8 @@ class HomeComponentState extends State<HomeComponent> {
             width: 200.0),
       ),
       menuButton(context, "Native Animation", "native"),
-      menuButton(context, "Preset (In from Left)", "preset-from-left"),
       menuButton(context, "Preset (Fade In)", "preset-fade"),
+      menuButton(context, "Preset (Global transition)", "fixed-trans"),
       menuButton(context, "Custom Transition", "custom"),
       menuButton(context, "Navigator Result", "pop-result"),
       menuButton(context, "Function Call", "function-call"),
@@ -153,7 +154,7 @@ class HomeComponentState extends State<HomeComponent> {
     String hexCode = "#FFFFFF";
     String result;
     TransitionType transitionType = TransitionType.native;
-    if (key != "custom" && key != "function-call") {
+    if (key != "custom" && key != "function-call" && key != "fixed-trans") {
       if (key == "native") {
         hexCode = "#F76F00";
         message =
@@ -209,6 +210,9 @@ class HomeComponentState extends State<HomeComponent> {
         transitionBuilder: transition,
         transitionDuration: const Duration(milliseconds: 600),
       );
+    } else if (key == "fixed-trans") {
+      Application.router.navigateTo(
+          context, "/demo/fixedtrans?message=Hello!&color_hex=#f4424b");
     } else {
       message = "You tapped the function button!";
       Application.router.navigateTo(context, "/demo/func?message=$message");
